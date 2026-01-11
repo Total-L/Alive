@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>每日签到 - Still Here</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2e7f7d",
+                        "accent-warm": "#D4A05D",
+                        "accent-amber": "#d97706",
+                        "danger": "#E28C8A",
+                        "background-light": "#fafafa",
+                        "background-dark": "#1a1a1a",
+                        "card-bg": "#ffffff",
+                        "surface-light": "#f1f3f3",
+                        "surface-dark": "#2d2d2d",
+                        "soft-gray": "#f0f0f0",
+                        "success-muted": "#d4e9e7",
+                        "warning-muted": "#fdf3e7",
+                        "danger-muted": "#fcecea",
+                    },
+                    fontFamily: {
+                        "sans": ["'Noto Sans SC'", "sans-serif"],
+                        "display": ["'Noto Sans SC'", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .soft-shadow {
+            box-shadow: 0 10px 30px -10px rgba(46, 127, 125, 0.15);
+        }
+        .check-in-glow {
+            box-shadow: 0 0 25px rgba(46, 127, 125, 0.3);
+        }
+        .font-variation-fill-1 {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .calendar-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-top: 2px;
+        }
+        .safe-dot { background-color: #2e7f7d; }
+        .missed-dot { background-color: #E28C8A; }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #dee3e3;
+            border-radius: 2px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2e7f7d;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #444;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-background-light dark:bg-background-dark">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

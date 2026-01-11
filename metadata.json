@@ -1,0 +1,5 @@
+{
+  "name": "活着么 (Alive)",
+  "description": "A daily safety check-in application that allows users to confirm their well-being, manage emergency contacts, and configure alert settings. The app provides a history of check-ins and ensures peace of mind for users and their loved ones.",
+  "requestFramePermissions": []
+}
