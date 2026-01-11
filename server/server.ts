@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // 如果 index.ts 存在，使用 index.ts；否则使用 index.js
-import router from './routes';
+import router from './routes.js';
 
 dotenv.config();
 
