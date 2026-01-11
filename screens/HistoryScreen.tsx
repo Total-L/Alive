@@ -79,15 +79,31 @@ const CalendarView: React.FC<{ records: CheckinRecord[] }> = ({ records }) => {
             const rDate = new Date(r.date);
             return rDate.getDate() === i && rDate.getMonth() === month && rDate.getFullYear() === year;
         });
+
+        const isPast = date < new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Is strictly before today
+        const isToday = i === now.getDate() && month === now.getMonth() && year === now.getFullYear();
         
+        // Logic:
+        // 1. If there is a record, use it (safe, missed, delayed)
+        // 2. If NO record AND it's a past day, mark as 'missed' (implicit missed)
+        // 3. If today or future with no record, standard state
+        
+        let type = record?.type;
+        let checkedIn = !!record;
+        
+        if (!checkedIn && isPast) {
+            checkedIn = true;
+            type = 'missed'; // Auto-mark past days as missed if no record
+        }
+
         calendarDays.push({
             day: i,
             inMonth: true,
             date: date,
-            isToday: i === now.getDate() && month === now.getMonth() && year === now.getFullYear(),
-            checkedIn: !!record,
-            missed: record?.type === 'missed' || record?.type === 'delayed', // Logic for red dot
-            type: record?.type
+            isToday: isToday,
+            checkedIn: checkedIn,
+            missed: type === 'missed' || type === 'delayed', // Logic for red dot
+            type: type
         });
     }
     
