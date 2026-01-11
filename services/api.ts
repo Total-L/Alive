@@ -2,11 +2,25 @@ import { Contact, CheckinRecord } from '../types';
 
 const API_URL = '/api';
 
+const handleResponse = async (response: Response) => {
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        try {
+            const errorJson = JSON.parse(errorText);
+            throw new Error(errorJson.error || `HTTP error! status: ${response.status}`);
+        } catch (e) {
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+    }
+    return response.json();
+};
+
 export const api = {
     // User
     getUser: async () => {
         const response = await fetch(`${API_URL}/user`);
-        return response.json();
+        return handleResponse(response);
     },
 
     updateUser: async (username: string) => {
@@ -15,13 +29,13 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username }),
         });
-        return response.json();
+        return handleResponse(response);
     },
 
     // Contacts
     getContacts: async (): Promise<Contact[]> => {
         const response = await fetch(`${API_URL}/contacts`);
-        const data = await response.json();
+        const data = await handleResponse(response);
         return data.map((item: any) => ({
             id: item.id,
             name: item.name,
@@ -41,7 +55,7 @@ export const api = {
                 isPrimary: contact.isPrimary
             }),
         });
-        const item = await response.json();
+        const item = await handleResponse(response);
         return {
             id: item.id,
             name: item.name,
@@ -61,7 +75,7 @@ export const api = {
                 isPrimary: contact.isPrimary
             }),
         });
-        const item = await response.json();
+        const item = await handleResponse(response);
         return {
             id: item.id,
             name: item.name,
@@ -73,15 +87,20 @@ export const api = {
     },
 
     deleteContact: async (id: number) => {
-        await fetch(`${API_URL}/contacts/${id}`, {
+        const response = await fetch(`${API_URL}/contacts/${id}`, {
             method: 'DELETE',
         });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Delete Error:', response.status, errorText);
+            throw new Error(`Delete failed: ${response.status}`);
+        }
     },
 
     // Checkins
     getHistory: async (): Promise<CheckinRecord[]> => {
         const response = await fetch(`${API_URL}/history`);
-        return response.json();
+        return handleResponse(response);
     },
 
     checkin: async (type: 'safe' | 'delayed' | 'missed', details?: string) => {
@@ -90,6 +109,6 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type, details }),
         });
-        return response.json();
+        return handleResponse(response);
     }
 };
