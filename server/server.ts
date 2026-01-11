@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+// 如果 index.ts 存在，使用 index.ts；否则使用 index.js
 import router from './routes';
 
 dotenv.config();
@@ -17,6 +18,10 @@ app.get('/', (req, res) => {
     res.send('Alive Backend is running');
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
+export default app;
