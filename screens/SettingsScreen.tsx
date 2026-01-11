@@ -167,7 +167,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigateTo, userName, s
                             </>
                         )}
                     </button>
-                    <p className="text-center text-[11px] text-gray-400 mt-4 tracking-[0.2em]">Still Here v2.4.0</p>
+                    <p className="text-center text-[11px] text-gray-400 mt-4 tracking-[0.2em]">Still alive v2.4.0</p>
                 </div>
             </div>
         </div>
