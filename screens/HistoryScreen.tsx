@@ -40,23 +40,78 @@ const HistoryItem: React.FC<{ record: CheckinRecord }> = ({ record }) => {
     );
 };
 
-const CalendarView: React.FC = () => {
+const CalendarView: React.FC<{ records: CheckinRecord[] }> = ({ records }) => {
     const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
-    const calendarDays = [
-        { day: 25, inMonth: false }, { day: 26, inMonth: false }, { day: 27, inMonth: false }, { day: 28, inMonth: false }, { day: 29, inMonth: false },
-        { day: 1, inMonth: true, checkedIn: true }, { day: 2, inMonth: true, checkedIn: true, missed: true },
-        { day: 3, inMonth: true, checkedIn: true }, { day: 4, inMonth: true, checkedIn: true }, { day: 5, inMonth: true, checkedIn: true, isToday: true },
-        { day: 6, inMonth: true }, { day: 7, inMonth: true }, { day: 8, inMonth: true }, { day: 9, inMonth: true }
-    ];
+    
+    // Get current date info
+    const now = new Date();
+    const [currentDate, setCurrentDate] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
+    
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // First day of the month
+    const firstDay = new Date(year, month, 1);
+    // Last day of the month
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Days from previous month to fill the first row
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    const startingDayOfWeek = firstDay.getDay(); // 0 is Sunday
+    
+    const calendarDays = [];
+    
+    // Previous month days
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+        calendarDays.push({
+            day: daysInPrevMonth - i,
+            inMonth: false,
+            date: new Date(year, month - 1, daysInPrevMonth - i)
+        });
+    }
+    
+    // Current month days
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+        const date = new Date(year, month, i);
+        // Find record for this day
+        // Note: records usually have full ISO strings, we need to compare dates
+        const record = records.find(r => {
+            const rDate = new Date(r.date);
+            return rDate.getDate() === i && rDate.getMonth() === month && rDate.getFullYear() === year;
+        });
+        
+        calendarDays.push({
+            day: i,
+            inMonth: true,
+            date: date,
+            isToday: i === now.getDate() && month === now.getMonth() && year === now.getFullYear(),
+            checkedIn: !!record,
+            missed: record?.type === 'missed' || record?.type === 'delayed', // Logic for red dot
+            type: record?.type
+        });
+    }
+    
+    // Next month days to fill grid (assuming 6 rows max = 42 cells)
+    const remainingCells = 42 - calendarDays.length;
+    for (let i = 1; i <= remainingCells; i++) {
+        calendarDays.push({
+            day: i,
+            inMonth: false,
+            date: new Date(year, month + 1, i)
+        });
+    }
+
+    const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+    const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-[#dee3e3] dark:border-white/10 p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-                <button className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                <button onClick={prevMonth} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
                     <span className="material-symbols-outlined text-primary">chevron_left</span>
                 </button>
-                <p className="text-[#131616] dark:text-white text-base font-bold">2024年3月</p>
-                <button className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                <p className="text-[#131616] dark:text-white text-base font-bold">{year}年{month + 1}月</p>
+                <button onClick={nextMonth} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
                     <span className="material-symbols-outlined text-primary">chevron_right</span>
                 </button>
             </div>
@@ -66,8 +121,8 @@ const CalendarView: React.FC = () => {
                     <div key={i} className={`h-14 flex flex-col items-center justify-center relative ${!d.inMonth ? 'opacity-20' : ''}`}>
                         {d.isToday && <div className="absolute inset-1 bg-primary/20 rounded-lg -z-0"></div>}
                         <span className={`text-sm font-bold z-10 ${d.isToday ? 'text-primary' : !d.inMonth ? '' : 'text-inherit'} ${!d.inMonth && d.day > 9 ? 'text-zinc-300' : ''}`}>{d.day}</span>
-                        {d.checkedIn && <span className="text-[9px] text-primary font-bold z-10">{d.isToday ? '今天' : '已签到'}</span>}
-                        {d.checkedIn && <div className={`calendar-dot z-10 ${d.missed ? 'missed-dot' : 'safe-dot'}`}></div>}
+                        {d.checkedIn && <span className="text-[9px] text-primary font-bold z-10">{d.type === 'safe' ? '已签到' : (d.type === 'missed' ? '未签到' : '延迟')}</span>}
+                        {d.checkedIn && <div className={`calendar-dot z-10 ${d.type === 'safe' ? 'safe-dot' : 'missed-dot'}`}></div>}
                     </div>
                 ))}
             </div>
@@ -84,11 +139,8 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ navigateTo }) => {
         const fetchHistory = async () => {
             try {
                 const data = await api.getHistory();
-                // Format dates for display if needed, but for now just use raw
-                setHistoryRecords(data.map(r => ({
-                    ...r,
-                    date: new Date(r.date).toLocaleString() // Simple formatting
-                })));
+                // Store raw data, formatting happens in components
+                setHistoryRecords(data);
             } catch (error) {
                 console.error('Failed to fetch history', error);
             }
@@ -144,7 +196,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ navigateTo }) => {
             </div>
             
             <div className="p-4 pt-2">
-                {view === 'calendar' && <CalendarView />}
+                {view === 'calendar' && <CalendarView records={historyRecords} />}
             </div>
 
             <div className="px-4 pb-24">
