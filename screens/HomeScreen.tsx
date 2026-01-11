@@ -86,6 +86,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigateTo, userName }) => {
     }, []);
 
     const handleCheckIn = async () => {
+        if (isCheckedInToday) {
+            alert('今天已经签到过了，请明天再来！');
+            return;
+        }
+
         try {
             await api.checkin('safe', 'Manual check-in from home screen');
             // Refresh status to show "Just now"
@@ -122,16 +127,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigateTo, userName }) => {
                     <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
                     <div className="relative z-10 flex flex-col gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                            <span className="text-primary font-bold text-xs tracking-widest">当前状态</span>
+                            <div className={`w-2 h-2 rounded-full ${isCheckedInToday ? 'bg-primary' : 'bg-zinc-300'} animate-pulse`}></div>
+                            <span className={`${isCheckedInToday ? 'text-primary' : 'text-zinc-500'} font-bold text-xs tracking-widest`}>当前状态</span>
                         </div>
                         <div>
-                            <h3 className="text-2xl font-bold mb-1">今日已平安</h3>
+                            <h3 className="text-2xl font-bold mb-1">{isCheckedInToday ? '今日已平安' : '今日未确认'}</h3>
                             <p className="text-[#6b8080] dark:text-zinc-400 text-sm">您的安全状态已同步给 3 位紧急联系人。</p>
                         </div>
                         <div className="flex items-center gap-2 bg-primary/5 dark:bg-primary/20 self-start px-3 py-1 rounded-full">
                             <span className="material-symbols-outlined text-primary text-sm">verified_user</span>
-                            <span className="text-primary font-medium text-xs">上次签到：2小时前</span>
+                            <span className="text-primary font-medium text-xs">上次签到：{lastCheckinTime}</span>
                         </div>
                     </div>
                 </div>
@@ -139,10 +144,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigateTo, userName }) => {
 
             <div className="flex flex-col items-center justify-center px-6 text-center pt-6 pb-6">
                 <div className="mb-2">
-                    <button onClick={handleCheckIn} className="group w-48 h-48 bg-primary text-white rounded-full flex flex-col items-center justify-center gap-2 transition-transform active:scale-95 active:brightness-90 check-in-glow">
-                        <span className="material-symbols-outlined text-5xl">touch_app</span>
-                        <span className="text-xl font-bold tracking-tight">立即签到</span>
-                        <span className="text-[10px] tracking-[0.2em] opacity-80 font-medium">点击确认安全</span>
+                    <button 
+                        onClick={handleCheckIn} 
+                        className={`group w-48 h-48 rounded-full flex flex-col items-center justify-center gap-2 transition-transform active:scale-95 active:brightness-90 check-in-glow ${
+                            isCheckedInToday 
+                            ? 'bg-success-muted dark:bg-primary/20 text-primary border-4 border-primary' 
+                            : 'bg-primary text-white'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-5xl">
+                            {isCheckedInToday ? 'check_circle' : 'touch_app'}
+                        </span>
+                        <span className="text-xl font-bold tracking-tight">
+                            {isCheckedInToday ? '已签到' : '立即签到'}
+                        </span>
+                        <span className="text-[10px] tracking-[0.2em] opacity-80 font-medium">
+                            {isCheckedInToday ? '明日请继续保持' : '点击确认安全'}
+                        </span>
                     </button>
                 </div>
                 <div className="flex flex-col gap-1">
